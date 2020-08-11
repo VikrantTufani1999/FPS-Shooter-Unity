@@ -303,8 +303,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 8061159178280160285}
+  initialHealth: 100
   initialAmmo: 12
-  ammo: 0
+  knockBackForce: 100
+  hurtDuration: 0.5
 --- !u!1 &8061159178281668159
 GameObject:
   m_ObjectHideFlags: 0
