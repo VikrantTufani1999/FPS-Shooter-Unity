@@ -71,7 +71,7 @@ public class Player : MonoBehaviour
                 Vector3 hurtDirection = (transform.position - enemy.transform.position).normalized;
                 Vector3 knockBackDirection = (hurtDirection + Vector3.up).normalized;
 
-                GetComponent<Rigidbody>(    )
+                GetComponent<ForceReceiver>().AddForce(knockBackDirection, knockBackForce);
 
                 StartCoroutine("HurtRoutine");                                      // Start sequence of can't be hurt more than one time in one hit
             }
