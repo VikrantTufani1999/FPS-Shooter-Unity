@@ -37,7 +37,7 @@ public class Player : MonoBehaviour
             {
                 ammo--;
 
-                GameObject bulletObject = ObjectPoolingManager.Instance.GetBullet();        // Instantiate bullet from object pool
+                GameObject bulletObject = ObjectPoolingManager.Instance.GetBullet(true);        // Instantiate bullet from object pool
                 bulletObject.transform.position = playerCamera.transform.position + playerCamera.transform.forward;     // bullets position setting
                 bulletObject.transform.forward = playerCamera.transform.forward;            // Move bullets forward
             }
@@ -58,14 +58,32 @@ public class Player : MonoBehaviour
             Destroy(ammoCrate.gameObject);  // Destroy the ammoCrate 
         }
 
-        else if(hit.collider.gameObject.GetComponent<Enemy>() != null)          // Check if hit with enemy
+        if (isHurt == false)     // Toggle to check if hurt by enemy or not                                           
         {
-            if (isHurt == false)     // Toggle to check if hurt by enemy or not                                           
+            GameObject hazard = null;
+            if (hit.collider.gameObject.GetComponent<Enemy>() != null)          // Check if hit with enemy
             {
                 Enemy enemy = hit.collider.gameObject.GetComponent<Enemy>();        // Reference to Enemy Script
+                hazard = enemy.gameObject;
                 health -= enemy.damage;                                             // Health decrease | Take damage from enemy
 
                 isHurt = true;                                                      // Toggle bool to true if hurt by enemy
+                                      // Start sequence of can't be hurt more than one time in one hit
+            }
+
+            else if(hit.collider.GetComponent<Bullet>() != null)
+            {
+                Bullet bullet = hit.collider.GetComponent<Bullet>();
+                if(bullet.ShotByPlayer == false)
+                {
+                    hazard = bullet.gameObject;
+                    health -= bullet.damage;
+                }
+            }
+
+            if(hazard != null)      // Optimization tip
+            {
+                isHurt = true;
 
                 // Perform the Knockback effect
                 Vector3 hurtDirection = (transform.position - enemy.transform.position).normalized;
@@ -73,7 +91,7 @@ public class Player : MonoBehaviour
 
                 GetComponent<ForceReceiver>().AddForce(knockBackDirection, knockBackForce);
 
-                StartCoroutine("HurtRoutine");                                      // Start sequence of can't be hurt more than one time in one hit
+                StartCoroutine("HurtRoutine");
             }
         }
     }
