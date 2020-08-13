@@ -86,7 +86,7 @@ public class Player : MonoBehaviour
                 isHurt = true;
 
                 // Perform the Knockback effect
-                Vector3 hurtDirection = (transform.position - enemy.transform.position).normalized;
+                Vector3 hurtDirection = (transform.position - hazard.transform.position).normalized;
                 Vector3 knockBackDirection = (hurtDirection + Vector3.up).normalized;
 
                 GetComponent<ForceReceiver>().AddForce(knockBackDirection, knockBackForce);
