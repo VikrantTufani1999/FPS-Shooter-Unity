@@ -20,6 +20,8 @@ public class Player : MonoBehaviour
     private int ammo;                                       
     public int Ammo { get { return ammo; } }                // Property Declaration
 
+    private bool killed;
+    public bool Killed { get { return killed; } }
     private bool isHurt;
 
     void Start()
@@ -33,7 +35,7 @@ public class Player : MonoBehaviour
         if(Input.GetMouseButtonDown(0))         // Check for Left Mouse Click
         {
             // Fire Bullets
-            if (ammo > 0)
+            if (ammo > 0 && Killed == false)
             {
                 ammo--;
 
@@ -46,38 +48,52 @@ public class Player : MonoBehaviour
 
     // Check for collision
 
-    private void OnControllerColliderHit(ControllerColliderHit hit)         // This collision inbuilt function only works for FPS type main players
+    private void OnTriggerEnter(Collider otherCollider)         // This collision inbuilt function only works for FPS type main players
     {
-        if(hit.collider.gameObject.GetComponent<AmmoCrate>() != null)       // Check if hit with ammoCrate
+        if(otherCollider.gameObject.GetComponent<AmmoCrate>() != null)       // Check if hit with ammoCrate
         {
             //Debug.Log(hit.collider.name);       // Get name of gameObject with which the player is hit.
             
-            // Collect ammo
-            AmmoCrate ammoCrate = hit.collider.gameObject.GetComponent<AmmoCrate>();    // Reference to AmmoCrate Script
+            // Collect ammo crates
+            AmmoCrate ammoCrate = otherCollider.gameObject.GetComponent<AmmoCrate>();    // Reference to AmmoCrate Script
             ammo += ammoCrate.ammo;         // Add ammoCrate bullets to existing ammo amount
+
             Destroy(ammoCrate.gameObject);  // Destroy the ammoCrate 
+        }
+        else if (otherCollider.gameObject.GetComponent<HealthCrate>() != null)       // Check if hit with ammoCrate
+        {
+            //Debug.Log(hit.collider.name);       // Get name of gameObject with which the player is hit.
+
+            // Collect health crates
+            HealthCrate healthCrate = otherCollider.gameObject.GetComponent<HealthCrate>();    // Reference to AmmoCrate Script
+            health += healthCrate.health;         // Add health to existing ammo amount
+
+            Destroy(healthCrate.gameObject);  // Destroy the HealthCrate 
         }
 
         if (isHurt == false)     // Toggle to check if hurt by enemy or not                                           
         {
             GameObject hazard = null;
-            if (hit.collider.gameObject.GetComponent<Enemy>() != null)          // Check if hit with enemy
+            if (otherCollider.gameObject.GetComponent<Enemy>() != null)          // Check if hit with enemy
             {
-                Enemy enemy = hit.collider.gameObject.GetComponent<Enemy>();        // Reference to Enemy Script
-                hazard = enemy.gameObject;
-                health -= enemy.damage;                                             // Health decrease | Take damage from enemy
-
+                Enemy enemy = otherCollider.gameObject.GetComponent<Enemy>();        // Reference to Enemy Script
+                if (enemy.Killed == false)
+                {
+                    hazard = enemy.gameObject;
+                    health -= enemy.damage;                                             // Health decrease | Take damage from enemy
+                }
                 isHurt = true;                                                      // Toggle bool to true if hurt by enemy
                                       // Start sequence of can't be hurt more than one time in one hit
             }
 
-            else if(hit.collider.GetComponent<Bullet>() != null)
+            else if(otherCollider.GetComponent<Bullet>() != null)
             {
-                Bullet bullet = hit.collider.GetComponent<Bullet>();
+                Bullet bullet = otherCollider.GetComponent<Bullet>();
                 if(bullet.ShotByPlayer == false)
                 {
                     hazard = bullet.gameObject;
                     health -= bullet.damage;
+                    bullet.gameObject.SetActive(false);
                 }
             }
 
@@ -93,6 +109,16 @@ public class Player : MonoBehaviour
 
                 StartCoroutine("HurtRoutine");
             }
+
+            if(health <= 0)
+            {
+                if(killed == false)
+                {
+                    killed = true;
+
+                    OnKill();
+                }
+            }
         }
     }
 
@@ -101,5 +127,11 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(hurtDuration);
 
         isHurt = false;
+    }
+
+    private void OnKill()
+    {
+        GetComponent<CharacterController>().enabled = false;
+        GetComponent<UnityStandardAssets.Characters.FirstPerson.FirstPersonController>().enabled = false;
     }
 }
