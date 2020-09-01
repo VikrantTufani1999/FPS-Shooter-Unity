@@ -1,4 +1,4 @@
-# Udemy-FPS-Game
+# FPS Shooter Unity
 
 * This is an implementation of game mechanics of FPS shooter in unity.
 * Call of duty can be considered as a reference game (except for the visuals, lol)
