@@ -1,4 +1,4 @@
 # Udemy-FPS-Game
 
-* This repo contains an FPS shooter game implemented in unity.
-* This game resembles gameplay of Call of duty and counter strike.
+* This is an implementation of game mechanics of FPS shooter in unity.
+* Call of duty can be considered as a reference game (except for the visuals, lol)
